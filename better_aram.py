@@ -13,8 +13,8 @@ async def connect(connection):
 
     chat        = Chat(connection)
     api         = DataDragonAPI()
-    version     = api.getVersion()
-    champion    = api.getChampionData(version)
+    version     = await api.getVersion()
+    champion    = await api.getChampionData(version)
     
     onceChampSelect = True
 
