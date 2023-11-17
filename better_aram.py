@@ -16,7 +16,7 @@ async def connect(connection):
     version     = await api.getVersion()
     champion    = await api.getChampionData(version)
     
-    onceChampSelect = True
+    onceChampSelect: bool = True
 
     print("Started")
     while True:
@@ -30,6 +30,7 @@ async def connect(connection):
             pass
 
         elif phase == "ReadyCheck":
+            onceChampSelect = True
             pass
 
         elif phase == "ChampSelect":
@@ -55,7 +56,7 @@ async def connect(connection):
             pass
 
         elif phase == "EndOfGame":
-            onceChampSelect = True
+            pass
 
         elif phase == "None":
             pass
