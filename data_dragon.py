@@ -5,7 +5,7 @@ import asyncio
 class DataDragonAPI:
     BASE_URL = "https://ddragon.leagueoflegends.com"
 
-    async def getData(self, endPoint: str) -> Optional[Dict]:
+    def getData(self, endPoint: str) -> Optional[Dict]:
         url = f"{self.BASE_URL}{endPoint}"
         try:
             response = requests.get(url)
@@ -21,13 +21,13 @@ class DataDragonAPI:
         except requests.exceptions.RequestException as err:
             print("Error:", err)
 
-    async def getVersion(self) -> str:
-        version = await self.getData("/api/versions.json")
+    def getVersion(self) -> str:
+        version = self.getData("/api/versions.json")
         if version:
             return version[0]
 
-    async def getChampionData(self, version: str) -> Dict:
-        champion = await self.getData(f"/cdn/{version}/data/en_US/champion.json")
+    def getChampionData(self, version: str) -> Dict:
+        champion = self.getData(f"/cdn/{version}/data/en_US/champion.json")
         if champion:
             return champion
 
@@ -40,13 +40,13 @@ class DataDragonAPI:
 async def test():
     api = DataDragonAPI()
     try:
-        version = await api.getVersion()
+        version     = api.getVersion()
         print("version: ", version)
 
-        champion = await api.getChampionData(version)
+        champion    = api.getChampionData(version)
         #print("data: ", champion)
 
-        targetKey = 1
+        targetKey   = 1
         targetChampion = await api.findChampionFromKey(champion, targetKey)
         if targetChampion:
             print(f"{targetKey}: {targetChampion}")

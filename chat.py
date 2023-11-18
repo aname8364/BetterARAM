@@ -1,8 +1,11 @@
 class Chat:
-    def __init__(self, connection):
-        self.connection = connection
+    connection = None
+
+    @classmethod
+    def setConnection(cls, connection) -> None:
+        cls.connection = connection
     
-    async def GetRoomID(self):
+    async def GetRoomID(self) -> str:
         data = await (await self.connection.request('get', '/lol-chat/v1/conversations')).json()
         roomData = {}
         for i in data:
@@ -11,7 +14,7 @@ class Chat:
                 break
         return roomData['id']
 
-    async def SendMessage(self, message, type="chat"):
+    async def SendMessage(self, message: str, type: str ="chat") -> None:
         try:
             roomID = await self.GetRoomID()
             messageDataBody = {
