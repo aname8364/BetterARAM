@@ -25,7 +25,7 @@ async def cmdTest(prefix: str = "", text: str = "", *args) -> None:
 async def cmdDeepLol() -> None:
     print("cmdDeepLol executed")
     await game.updateMyTeam()
-    
+
     message = "[BetterARAM]\n"
     for teamMate in game.myTeam:
         summonerId: int = teamMate.get("summonerId", -1)
@@ -75,7 +75,7 @@ async def connect(connection):
         elif phase == "ChampSelect":
             if onceChampSelect:
                 await sleep(3)
-                await game.updateMyTeam()
+                await cmdDeepLol()
                 onceChampSelect = False
 
         elif phase == "InProgress":
