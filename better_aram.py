@@ -1,11 +1,30 @@
-from asyncio import sleep
+from asyncio    import sleep
+from requests   import get
 
 from lcu_driver import Connector
 from command    import Command
 
+def checkVersion() -> None:
+    response = get("https://raw.githubusercontent.com/aname8364/BetterARAM/main/version")
+    response.raise_for_status()
+
+    if response.status_code == 200:
+        latestVersion = response.text.rstrip()
+        if VERSION == latestVersion:
+            print("You are using the latest version.")
+        elif VERSION < latestVersion:
+            print(f"Current version: {VERSION}\nLatest version: {latestVersion}\nA new version is available.")
+        else:
+            print("???how")
+    else:
+        print("Failed to check version.")
+
 print("Starting..")
 
 Command.initCommands()
+
+VERSION     = "0.5.1"
+checkVersion()
 
 connector   = Connector()
 command     = Command()

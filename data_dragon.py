@@ -1,6 +1,6 @@
 import aiohttp
-from typing import Optional, Dict
 import asyncio
+from typing import Optional, Dict
 
 class DataDragonAPI:
     BASE_URL = "https://ddragon.leagueoflegends.com"
