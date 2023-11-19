@@ -3,14 +3,6 @@ from chat import Chat
 from summoner import Summoner
 from game import Game
 
-game        = Game()
-chat        = Chat()
-summoner    = Summoner()
-
-api         = DataDragonAPI()
-version     = api.getVersion()
-champion    = api.getChampionData(version)
-
 class Command:
     commands = {}
 
@@ -22,39 +14,45 @@ class Command:
             "나"    : cls.cmdDeepLolSolo
         }
 
+    def __init__(self) -> None:
+        self.game        = Game()
+        self.chat        = Chat()
+        self.summoner    = Summoner()
+        self.api         = DataDragonAPI()
+
     async def setOwner(self, ownerId) -> None:
         self.owner = ownerId
 
     async def cmdTest(self, prefix: str = "", text: str = "", *args) -> None:
         print("cmdTest executed")
-        await chat.SendMessage(f"message\nprefix: {prefix}\ntext: {text}")
+        await self.chat.SendMessage(f"message\nprefix: {prefix}\ntext: {text}")
 
     async def cmdDeepLol(self, *args) -> None:
         print("cmdDeepLol executed")
-        await game.updateMyTeam()
+        await self.game.updateMyTeam()
 
         message = "[BetterARAM]\n"
-        for teamMate in game.myTeam:
+        for teamMate in self.game.myTeam:
             summonerId: int = teamMate.get("summonerId", -1)
             championId: int = teamMate.get("championId", -1)
         
             if summonerId == -1 or championId == -1:
                 continue
         
-            summonerName = (await summoner.GetSummonerWithId(summonerId)).get("displayName", "")
-            championName = await api.findChampionFromKey(champion, championId)
+            summonerName = (await self.summoner.GetSummonerWithId(summonerId)).get("displayName", "")
+            championName = await self.api.findChampionFromKey(championId)
         
             if summonerName == "" or not championName:
                 continue
         
             message += f"{summonerName}: https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
-        await chat.SendMessage(message)
+        await self.chat.SendMessage(message)
 
     async def cmdDeepLolSolo(self, *args) -> None:
         print("cmdDeepLolSolo executed")
-        await game.updateMyTeam()
+        await self.game.updateMyTeam()
 
-        for teamMate in game.myTeam:
+        for teamMate in self.game.myTeam:
             summonerId: int = teamMate.get("summonerId", -1)
             championId: int = teamMate.get("championId", -1)
             
@@ -64,14 +62,14 @@ class Command:
             if summonerId != self.owner:
                 continue
 
-            summonerName = (await summoner.GetSummonerWithId(summonerId)).get("displayName", "")
-            championName = await api.findChampionFromKey(champion, championId)
+            summonerName = (await self.summoner.GetSummonerWithId(summonerId)).get("displayName", "")
+            championName = await self.api.findChampionFromKey(championId)
 
             if summonerName == "" or not championName:
                 continue
 
             message = f"{summonerName}: https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
-        await chat.SendMessage(message)
+        await self.chat.SendMessage(message)
         
 
     async def connect(self, connection) -> None:
