@@ -12,16 +12,14 @@ from auto_swap      import AutoSwap
 from logger         import Logger
 
 class BetterARAM:
-    VERSION         = "0.7.6"
+    VERSION         = "0.7.8"
     connector       = Connector()
     logger          = Logger("BetterARAM")
-
-    def __init__(self):
-        self.command    = Command()
-        self.game       = Game()
-        self.api        = DataDragonAPI()
-        self.chat       = Chat()
-        self.autoSwap   = AutoSwap()
+    command         = Command()
+    game            = Game()
+    api             = DataDragonAPI()
+    chat            = Chat()
+    autoSwap        = AutoSwap()
 
     def checkVersion(self) -> None:
         response = get("https://raw.githubusercontent.com/aname8364/BetterARAM/main/version")
@@ -31,7 +29,7 @@ class BetterARAM:
             latestVersion   = version.parse(response.text.rstrip())
             currentVersion  = version.parse(self.VERSION)
             if currentVersion == latestVersion:
-                self.logger.log.info("You are using the latest version.")
+                self.logger.log.info(f"Current version: {self.VERSION}\nYou are using the latest version.")
             elif currentVersion < latestVersion:
                 self.logger.log.warning(f"Current version: {self.VERSION}\nLatest version: {latestVersion}\nA new version is available.")
             else:
@@ -64,18 +62,19 @@ async def connect(connection):
         phase = await (await connection.request("get", "/lol-gameflow/v1/gameflow-phase")).json()
         log.info(f"gameflow-phase: {phase}")
         if phase == "Lobby":
-            pass
+            onceChampSelect = True
         
         elif phase == "Matchmaking":
             pass
 
         elif phase == "ReadyCheck":
-            onceChampSelect = True
+            pass
 
         elif phase == "ChampSelect":
             if onceChampSelect:
                 # streak here
-                await sleep(1)
+                await sleep(3)
+                await BetterARAM.chat.SendMessage("command: /me , /deeplol")
                 onceChampSelect = False
             await betterARAM.autoSwap.checkBench()
             
