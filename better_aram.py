@@ -8,17 +8,19 @@ from command        import Command
 from game           import Game
 from chat           import Chat
 from auto_swap      import AutoSwap
+from logger         import Logger
 
 class BetterARAM:
-    VERSION         = "0.7.4"
+    VERSION         = "0.7.5"
     connector       = Connector()
+    logger          = Logger("BetterARAM")
 
     def __init__(self):
-        self.command     = Command()
-        self.game        = Game()
-        self.api         = DataDragonAPI()
-        self.chat        = Chat()
-        self.autoSwap    = AutoSwap()
+        self.command    = Command()
+        self.game       = Game()
+        self.api        = DataDragonAPI()
+        self.chat       = Chat()
+        self.autoSwap   = AutoSwap()
 
     def checkVersion(self) -> None:
         response = get("https://raw.githubusercontent.com/aname8364/BetterARAM/main/version")
@@ -27,16 +29,16 @@ class BetterARAM:
         if response.status_code == 200:
             latestVersion = response.text.rstrip()
             if self.VERSION == latestVersion:
-                print("You are using the latest version.")
+                self.logger.log.info("You are using the latest version.")
             elif self.VERSION < latestVersion:
-                print(f"Current version: {self.VERSION}\nLatest version: {latestVersion}\nA new version is available.")
+                self.logger.log.warning(f"Current version: {self.VERSION}\nLatest version: {latestVersion}\nA new version is available.")
             else:
-                print("hi aname!")
+                self.logger.log.debug("version > latestVersion")
         else:
-            print("Failed to check version.")
+            self.logger.log.error("Failed to check version.")
 
     def start(self):
-        print("Starting..")
+        self.logger.log.info("Starting..")
         self.checkVersion()
         self.connector.start()
 
@@ -44,7 +46,8 @@ betterARAM  = BetterARAM()
 
 @BetterARAM.connector.ready
 async def connect(connection):
-    print("connected")
+    log = BetterARAM.logger.log
+    log.info("connected")
     Chat.setConnection(connection)
     AutoSwap.setConnection(connection)
     await betterARAM.command.connect(connection)
@@ -53,11 +56,11 @@ async def connect(connection):
     
     onceChampSelect: bool = True
 
-    print("Started")
+    log.info("Started")
     while True:
         await sleep(1)
         phase = await (await connection.request("get", "/lol-gameflow/v1/gameflow-phase")).json()
-        print(f"gameflow-phase: {phase}")
+        log.info(f"gameflow-phase: {phase}")
         if phase == "Lobby":
             pass
         

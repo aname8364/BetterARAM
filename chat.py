@@ -1,5 +1,8 @@
+from logger import Logger
+
 class Chat:
-    connection = None
+    connection  = None
+    logger      = Logger("Chat")
 
     @classmethod
     def setConnection(cls, connection) -> None:
@@ -23,7 +26,7 @@ class Chat:
             }
             await self.connection.request('post', '/lol-chat/v1/conversations/' + roomID + '/messages', data=messageDataBody)
         except Exception as e:
-            print(e)
+            self.logger.log.error(e)
 
     async def GetMe(self):
        data = await (await self.connection.request('get', '/lol-chat/v1/me')).json()

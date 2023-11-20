@@ -1,10 +1,12 @@
-from data_dragon import DataDragonAPI
-from chat import Chat
-from summoner import Summoner
-from game import Game
+from data_dragon    import DataDragonAPI
+from chat           import Chat
+from summoner       import Summoner
+from game           import Game
+from logger         import Logger
 
 class Command:
-    commands = {}
+    commands    = {}
+    logger      = Logger("Command")
 
     def initCommands(self) -> None:
         self.commands = {
@@ -23,7 +25,7 @@ class Command:
         self.owner = ownerId
 
     async def cmdDeepLol(self, *args) -> None:
-        print("cmdDeepLol executed")
+        self.logger.log.debug("cmdDeepLol executed")
         await self.game.updateMyTeam()
 
         message = "[BetterARAM]\n"
@@ -44,7 +46,7 @@ class Command:
         await self.chat.SendMessage(message)
 
     async def cmdDeepLolSolo(self, *args) -> None:
-        print("cmdDeepLolSolo executed")
+        self.logger.log.debug("cmdDeepLolSolo executed")
         await self.game.updateMyTeam()
 
         message = ""

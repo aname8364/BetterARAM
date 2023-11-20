@@ -2,12 +2,15 @@ import aiohttp
 import asyncio
 from typing import Optional, Dict
 
+from logger import Logger
+
 class DataDragonAPI:
     BASE_URL        = "https://ddragon.leagueoflegends.com"
     gameVersion     = ""
     championData    = {}
     championTable   = {}
     isInited        = False
+    logger          = Logger("DataDragonAPI")
 
     async def init(self) -> None:
         if not self.isInited:
@@ -25,7 +28,7 @@ class DataDragonAPI:
                     data = await response.json()
                     return data
                 except aiohttp.ClientError as e:
-                    print(f"Error during HTTP request: {e}")
+                    self.logger.log.error(f"Error during HTTP request: {e}")
                     return None
 
     async def updateVersion(self) -> str:
@@ -40,7 +43,7 @@ class DataDragonAPI:
             if championData:
                 self.championData = championData
             else:
-                print("updateChampionData: Failed to get champion.json")
+                self.logger.log.error("Failed to get champion.json")
             
     async def getChampionId(self, name: str) -> Optional[str]:
         champion = self.championData.get(name, {})

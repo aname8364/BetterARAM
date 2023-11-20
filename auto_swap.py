@@ -5,6 +5,7 @@ from dataclasses    import dataclass
 from game           import Game
 from chat           import Chat
 from data_dragon    import DataDragonAPI
+from logger         import Logger
 
 @dataclass
 class BenchChampion:
@@ -14,6 +15,7 @@ class BenchChampion:
 class AutoSwap:
     connection  = None
     filePath    = "favorite_champion.json"
+    logger      = Logger("AutoSwap")
 
     @classmethod
     def setConnection(cls, connection) -> None:
@@ -67,7 +69,7 @@ class AutoSwap:
                 favChampionId   = await self.api.getChampionId(champion)
                 benchChampionId = benchChampion.get("championId", -1)
                 if int(favChampionId) == benchChampionId:
-                    print(f"found favorite champion with priority {priority} from bench")
+                    self.logger.log.info(f"found favorite champion with priority {priority} from bench")
                     if curPriority == -1 or priority < curPriority:
                         await self.connection.request("post", f"/lol-champ-select/v1/session/bench/swap/{favChampionId}")
                         await self.chat.SendMessage(f"[AutoSwap] swap to {champion} (priority: {priority})")
