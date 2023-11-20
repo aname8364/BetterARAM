@@ -1,5 +1,6 @@
 from asyncio        import sleep
 from requests       import get
+from packaging      import version
 
 from lcu_driver     import Connector
 
@@ -11,7 +12,7 @@ from auto_swap      import AutoSwap
 from logger         import Logger
 
 class BetterARAM:
-    VERSION         = "0.7.5"
+    VERSION         = "0.7.6"
     connector       = Connector()
     logger          = Logger("BetterARAM")
 
@@ -27,10 +28,11 @@ class BetterARAM:
         response.raise_for_status()
 
         if response.status_code == 200:
-            latestVersion = response.text.rstrip()
-            if self.VERSION == latestVersion:
+            latestVersion   = version.parse(response.text.rstrip())
+            currentVersion  = version.parse(self.VERSION)
+            if currentVersion == latestVersion:
                 self.logger.log.info("You are using the latest version.")
-            elif self.VERSION < latestVersion:
+            elif currentVersion < latestVersion:
                 self.logger.log.warning(f"Current version: {self.VERSION}\nLatest version: {latestVersion}\nA new version is available.")
             else:
                 self.logger.log.debug("version > latestVersion")
