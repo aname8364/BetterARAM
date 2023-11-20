@@ -24,3 +24,7 @@ class Chat:
             await self.connection.request('post', '/lol-chat/v1/conversations/' + roomID + '/messages', data=messageDataBody)
         except Exception as e:
             print(e)
+
+    async def GetMe(self):
+       data = await (await self.connection.request('get', '/lol-chat/v1/me')).json()
+       return data

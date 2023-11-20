@@ -1,8 +1,13 @@
-from asyncio    import sleep
-from requests   import get
+from asyncio        import sleep
+from requests       import get
 
-from lcu_driver import Connector
-from command    import Command
+from lcu_driver     import Connector
+
+from data_dragon    import DataDragonAPI
+from command        import Command
+from game           import Game
+from chat           import Chat
+from auto_swap      import AutoSwap
 
 def checkVersion() -> None:
     response = get("https://raw.githubusercontent.com/aname8364/BetterARAM/main/version")
@@ -15,7 +20,7 @@ def checkVersion() -> None:
         elif VERSION < latestVersion:
             print(f"Current version: {VERSION}\nLatest version: {latestVersion}\nA new version is available.")
         else:
-            print("???how")
+            print("hi aname!")
     else:
         print("Failed to check version.")
 
@@ -23,22 +28,31 @@ print("Starting..")
 
 Command.initCommands()
 
-VERSION     = "0.5.1"
+VERSION     = "0.7.2"
 checkVersion()
 
 connector   = Connector()
 command     = Command()
+game        = Game()
+api         = DataDragonAPI()
+chat        = Chat()
+autoSwap    = AutoSwap()
 
 @connector.ready
 async def connect(connection):
     print("connected")
+
+    Chat.setConnection(connection)
+    AutoSwap.setConnection(connection)
     await command.connect(connection)
+    await api.init()
+    await autoSwap.start()
     
     onceChampSelect: bool = True
 
     print("Started")
     while True:
-        await sleep(3)
+        await sleep(1)
         phase = await (await connection.request("get", "/lol-gameflow/v1/gameflow-phase")).json()
         print(f"gameflow-phase: {phase}")
         if phase == "Lobby":
@@ -49,13 +63,14 @@ async def connect(connection):
 
         elif phase == "ReadyCheck":
             onceChampSelect = True
-            pass
 
         elif phase == "ChampSelect":
             if onceChampSelect:
-                await sleep(3)
-                await command.cmdDeepLol()
+                # streak here
+                await sleep(1)
                 onceChampSelect = False
+            await autoSwap.checkBench()
+            
 
         elif phase == "InProgress":
             pass

@@ -40,18 +40,19 @@ class Command:
                 continue
         
             summonerName = (await self.summoner.GetSummonerWithId(summonerId)).get("displayName", "")
-            championName = await self.api.findChampionFromKey(championId)
+            championName = self.api.championTable.get(championId, "")
         
             if summonerName == "" or not championName:
                 continue
         
-            message += f"{summonerName}: https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message += f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
 
     async def cmdDeepLolSolo(self, *args) -> None:
         print("cmdDeepLolSolo executed")
         await self.game.updateMyTeam()
 
+        message = ""
         for teamMate in self.game.myTeam:
             summonerId: int = teamMate.get("summonerId", -1)
             championId: int = teamMate.get("championId", -1)
@@ -63,19 +64,19 @@ class Command:
                 continue
 
             summonerName = (await self.summoner.GetSummonerWithId(summonerId)).get("displayName", "")
-            championName = await self.api.findChampionFromKey(championId)
+            championName = self.api.championTable.get(championId, "")
 
             if summonerName == "" or not championName:
                 continue
 
-            message = f"{summonerName}: https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message = f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
         
 
     async def connect(self, connection) -> None:
         Game.setConnection(connection)
-        Chat.setConnection(connection)
         Summoner.setConnection(connection)
+        await self.api.init()
 
     async def processMessage(self, connection, event) -> None:
         lastMessage = event.data
