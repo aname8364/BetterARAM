@@ -6,12 +6,10 @@ from game import Game
 class Command:
     commands = {}
 
-    @classmethod
-    def initCommands(cls) -> None:
-        cls.commands = {
-            "t"     : cls.cmdTest,
-            "딥롤"  : cls.cmdDeepLol,
-            "나"    : cls.cmdDeepLolSolo
+    def initCommands(self) -> None:
+        self.commands = {
+            "deeplol"   : self.cmdDeepLol,
+            "me"        : self.cmdDeepLolSolo
         }
 
     def __init__(self) -> None:
@@ -19,13 +17,10 @@ class Command:
         self.chat        = Chat()
         self.summoner    = Summoner()
         self.api         = DataDragonAPI()
+        self.initCommands()
 
     async def setOwner(self, ownerId) -> None:
         self.owner = ownerId
-
-    async def cmdTest(self, prefix: str = "", text: str = "", *args) -> None:
-        print("cmdTest executed")
-        await self.chat.SendMessage(f"message\nprefix: {prefix}\ntext: {text}")
 
     async def cmdDeepLol(self, *args) -> None:
         print("cmdDeepLol executed")
@@ -91,4 +86,4 @@ class Command:
         command = command[1:]
 
         if command in self.commands:
-            await self.commands[command](self, *parameters)
+            await self.commands[command](*parameters)
