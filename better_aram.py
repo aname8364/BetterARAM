@@ -12,7 +12,7 @@ from auto_swap      import AutoSwap
 from logger         import Logger
 
 class BetterARAM:
-    VERSION         = "0.7.8"
+    VERSION         = "0.7.9"
     connector       = Connector()
     logger          = Logger("BetterARAM")
     command         = Command()
@@ -65,10 +65,10 @@ async def connect(connection):
             onceChampSelect = True
         
         elif phase == "Matchmaking":
-            pass
+            onceChampSelect = True
 
         elif phase == "ReadyCheck":
-            pass
+            onceChampSelect = True
 
         elif phase == "ChampSelect":
             if onceChampSelect:
