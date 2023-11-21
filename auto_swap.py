@@ -1,6 +1,7 @@
 from typing         import List
-from json           import loads
+from json           import loads, dumps
 from dataclasses    import dataclass
+from aiofiles       import open, ospath
 
 from game           import Game
 from chat           import Chat
@@ -26,12 +27,22 @@ class AutoSwap:
         self.chat   = Chat()
         self.api    = DataDragonAPI()
 
+    async def checkFilePath(self) -> None:
+        if not (await ospath.isfile(self.filePath)):
+            self.logger.log.debug(f"Creating {self.filePath}")
+            async with open(self.filePath, mode="w") as file:
+                await file.write(dumps({}))
+
+    async def loadFavoriteChampion(self) -> None:
+        await self.checkFilePath()
+        async with open(self.filePath, mode="r") as file:
+            content = await file.read()
+        self.favChampion = loads(content)
+
     async def start(self) -> None:
         self.me = await self.chat.GetMe()
         await self.api.init()
-        with open(self.filePath, "r") as file:
-            content = file.read()
-        self.favChampion    = loads(content)
+        await self.loadFavoriteChampion()
 
     async def getBench(self) -> List[BenchChampion]:
         session     = await self.game.getSession()
