@@ -12,7 +12,7 @@ from auto_swap      import AutoSwap
 from logger         import Logger
 
 class BetterARAM:
-    VERSION         = "0.7.9"
+    VERSION         = "0.8.0"
     connector       = Connector()
     logger          = Logger("BetterARAM")
     command         = Command()

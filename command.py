@@ -10,6 +10,7 @@ class Command:
 
     def initCommands(self) -> None:
         self.commands = {
+            "test"      : self.cmdTest,
             "deeplol"   : self.cmdDeepLol,
             "me"        : self.cmdDeepLolSolo
         }
@@ -24,11 +25,16 @@ class Command:
     async def setOwner(self, ownerId) -> None:
         self.owner = ownerId
 
+    async def cmdTest(self) -> None:
+        self.logger.log.debug("cmdTest executed")
+        summoner = await self.summoner.GetSummoners("..")
+        self.logger.log.debug(summoner)
+
     async def cmdDeepLol(self, *args) -> None:
         self.logger.log.debug("cmdDeepLol executed")
         await self.game.updateMyTeam()
 
-        message = "[BetterARAM]\n"
+        message = "[DeepLOL 챔피언분석]\n"
         for teamMate in self.game.myTeam:
             summonerId: int = teamMate.get("summonerId", -1)
             championId: int = teamMate.get("championId", -1)
@@ -36,13 +42,15 @@ class Command:
             if summonerId == -1 or championId == -1:
                 continue
         
-            summonerName = (await self.summoner.GetSummonerWithId(summonerId)).get("displayName", "")
-            championName = self.api.championTable.get(championId, "")
+            summoner        = await self.summoner.GetSummonerWithId(summonerId)
+            summonerName    = summoner.get("gameName", "")
+            tagLine         = summoner.get("tagLine" , "")
+            championName    = self.api.championTable.get(championId, "")
         
             if summonerName == "" or not championName:
                 continue
         
-            message += f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message += f"{summonerName} #{tagLine} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
 
     async def cmdDeepLolSolo(self, *args) -> None:
@@ -60,17 +68,20 @@ class Command:
             if summonerId != self.owner:
                 continue
 
-            summonerName = (await self.summoner.GetSummonerWithId(summonerId)).get("displayName", "")
-            championName = self.api.championTable.get(championId, "")
+            summoner        = await self.summoner.GetSummonerWithId(summonerId)
+            summonerName    = summoner.get("gameName", "")
+            tagLine         = summoner.get("tagLine" , "")
+            championName    = self.api.championTable.get(championId, "")
 
             if summonerName == "" or not championName:
                 continue
 
-            message = f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message = f"{summonerName} #{tagLine} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
         
 
     async def connect(self, connection) -> None:
+        Chat.setConnection(connection)
         Game.setConnection(connection)
         Summoner.setConnection(connection)
         await self.api.init()
@@ -88,4 +99,35 @@ class Command:
         command = command[1:]
 
         if command in self.commands:
-            await self.commands[command](*parameters)
+            try:
+                await self.commands[command](*parameters)
+            except:
+                self.logger.log.error(f"Failed to run command {command} with args {parameters}")
+
+if __name__ == "__main__":
+    from lcu_driver import Connector
+
+    connector   = Connector()
+    command     = Command()
+
+    @connector.ready
+    async def connect(connection):
+        await command.connect(connection)
+
+    @connector.ws.register('/lol-chat/v1/conversations/', event_types=('CREATE',))
+    async def processMessage(connection, event):
+        lastMessage = event.data
+
+        if not "body" in lastMessage:
+            return
+    
+        body    = lastMessage["body"]
+        type    = lastMessage["type"]
+
+        if type != "groupchat":
+            return
+    
+        if body[0] == "/":
+            await command.processMessage(connection, event)
+
+    connector.start()
