@@ -42,15 +42,13 @@ class Command:
             if summonerId == -1 or championId == -1:
                 continue
         
-            summoner        = await self.summoner.GetSummonerWithId(summonerId)
-            summonerName    = summoner.get("gameName", "")
-            tagLine         = summoner.get("tagLine" , "")
+            summonerName    = await self.summoner.GetSummonerName(summonerId)
             championName    = self.api.championTable.get(championId, "")
         
             if summonerName == "" or not championName:
                 continue
         
-            message += f"{summonerName} #{tagLine} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message += f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
 
     async def cmdDeepLolSolo(self, *args) -> None:
@@ -68,15 +66,13 @@ class Command:
             if summonerId != self.owner:
                 continue
 
-            summoner        = await self.summoner.GetSummonerWithId(summonerId)
-            summonerName    = summoner.get("gameName", "")
-            tagLine         = summoner.get("tagLine" , "")
+            summonerName    = await self.summoner.GetSummonerName(summonerId)
             championName    = self.api.championTable.get(championId, "")
 
             if summonerName == "" or not championName:
                 continue
 
-            message = f"{summonerName} #{tagLine} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message = f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
         
 
