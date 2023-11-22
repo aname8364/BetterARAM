@@ -10,9 +10,10 @@ from game           import Game
 from chat           import Chat
 from auto_swap      import AutoSwap
 from logger         import Logger
+from streak         import Streak
 
 class BetterARAM:
-    VERSION         = "0.8.2"
+    VERSION         = "0.9.0"
     connector       = Connector()
     logger          = Logger("BetterARAM")
     command         = Command()
@@ -20,6 +21,7 @@ class BetterARAM:
     api             = DataDragonAPI()
     chat            = Chat()
     autoSwap        = AutoSwap()
+    streak          = Streak()
 
     def checkVersion(self) -> None:
         response = get("https://raw.githubusercontent.com/aname8364/BetterARAM/main/version")
@@ -50,6 +52,7 @@ async def connect(connection):
     log.info("connected")
     Chat.setConnection(connection)
     AutoSwap.setConnection(connection)
+    Streak.setConnection(connection)
     await betterARAM.command.connect(connection)
     await betterARAM.api.init()
     await betterARAM.autoSwap.start()
@@ -72,14 +75,18 @@ async def connect(connection):
 
         elif phase == "ChampSelect":
             if onceChampSelect:
-                # streak here
-                await sleep(3)
+                await sleep(4)
+                await BetterARAM.chat.SendMessage("BetterARAM을 사용중이에요!")
+                await BetterARAM.streak.checkStreak()
                 await BetterARAM.command.showHelp()
                 onceChampSelect = False
             await betterARAM.autoSwap.checkBench()
             
 
         elif phase == "InProgress":
+            pass
+
+        elif phase == "Reconnect":
             pass
 
         elif phase == "WaitingForStats":

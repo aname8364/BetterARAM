@@ -78,7 +78,6 @@ class Command:
 
     async def showHelp(self) -> None:
         message = "[Command]\n"
-        message += "BetterARAM을 사용중이에요!"
         message += f"\n명령어가 {len(self.commands)}개 있어요: /me 또는 /deeplol"
         await self.chat.SendMessage(message)
 
