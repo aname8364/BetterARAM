@@ -10,7 +10,6 @@ class Command:
 
     def initCommands(self) -> None:
         self.commands = {
-            "test"      : self.cmdTest,
             "deeplol"   : self.cmdDeepLol,
             "me"        : self.cmdDeepLolSolo
         }
@@ -25,16 +24,11 @@ class Command:
     async def setOwner(self, ownerId) -> None:
         self.owner = ownerId
 
-    async def cmdTest(self) -> None:
-        self.logger.log.debug("cmdTest executed")
-        summoner = await self.summoner.GetSummoners("..")
-        self.logger.log.debug(summoner)
-
     async def cmdDeepLol(self, *args) -> None:
         self.logger.log.debug("cmdDeepLol executed")
         await self.game.updateMyTeam()
 
-        message = "[DeepLOL 챔피언분석]\n"
+        message = "[DeepLOL 전체챔피언분석]\n"
         for teamMate in self.game.myTeam:
             summonerId: int = teamMate.get("summonerId", -1)
             championId: int = teamMate.get("championId", -1)
@@ -55,7 +49,7 @@ class Command:
         self.logger.log.debug("cmdDeepLolSolo executed")
         await self.game.updateMyTeam()
 
-        message = ""
+        message = "[DeepLOL 개인챔피언분석]\n"
         for teamMate in self.game.myTeam:
             summonerId: int = teamMate.get("summonerId", -1)
             championId: int = teamMate.get("championId", -1)
@@ -72,7 +66,7 @@ class Command:
             if summonerName == "" or not championName:
                 continue
 
-            message = f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message += f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
         
 
@@ -81,6 +75,12 @@ class Command:
         Game.setConnection(connection)
         Summoner.setConnection(connection)
         await self.api.init()
+
+    async def showHelp(self) -> None:
+        message = "[Command]\n"
+        message += "BetterARAM을 사용중이에요!"
+        message += f"\n명령어가 {len(self.commands)}개 있어요: /me 또는 /deeplol"
+        await self.chat.SendMessage(message)
 
     async def processMessage(self, connection, event) -> None:
         lastMessage = event.data

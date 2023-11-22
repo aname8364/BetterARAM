@@ -12,7 +12,7 @@ from auto_swap      import AutoSwap
 from logger         import Logger
 
 class BetterARAM:
-    VERSION         = "0.8.1"
+    VERSION         = "0.8.2"
     connector       = Connector()
     logger          = Logger("BetterARAM")
     command         = Command()
@@ -74,7 +74,7 @@ async def connect(connection):
             if onceChampSelect:
                 # streak here
                 await sleep(3)
-                await BetterARAM.chat.SendMessage("command: /me , /deeplol")
+                await BetterARAM.command.showHelp()
                 onceChampSelect = False
             await betterARAM.autoSwap.checkBench()
             
