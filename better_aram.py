@@ -1,5 +1,5 @@
-from asyncio        import sleep
 from requests       import get
+from asyncio        import sleep
 from packaging      import version
 
 from lcu_driver     import Connector
@@ -11,6 +11,7 @@ from chat           import Chat
 from auto_swap      import AutoSwap
 from logger         import Logger
 from streak         import Streak
+from options        import Options
 
 class BetterARAM:
     VERSION         = "0.9.0"
@@ -22,6 +23,7 @@ class BetterARAM:
     chat            = Chat()
     autoSwap        = AutoSwap()
     streak          = Streak()
+    options         = Options()
 
     def checkVersion(self) -> None:
         response = get("https://raw.githubusercontent.com/aname8364/BetterARAM/main/version")
@@ -42,13 +44,15 @@ class BetterARAM:
     def start(self):
         self.logger.log.info("Starting..")
         self.checkVersion()
+        self.options.loadOptions()
         self.connector.start()
 
 betterARAM  = BetterARAM()
 
 @BetterARAM.connector.ready
 async def connect(connection):
-    log = BetterARAM.logger.log
+    log     = BetterARAM.logger.log
+    options  = BetterARAM.options
     log.info("connected")
     Chat.setConnection(connection)
     AutoSwap.setConnection(connection)
@@ -76,11 +80,19 @@ async def connect(connection):
         elif phase == "ChampSelect":
             if onceChampSelect:
                 await sleep(4)
-                await BetterARAM.chat.SendMessage("BetterARAM을 사용중이에요!")
-                await BetterARAM.streak.checkStreak()
-                await BetterARAM.command.showHelp()
+                enterMessage = await options.getOption("Other", "EnterMessage")
+                await BetterARAM.chat.SendMessage(enterMessage)
+
+                if (await options.getOption("CoreFeature", "UseStreak")):
+                    await BetterARAM.streak.checkStreak()
+
+                if (await options.getOption("CoreFeature", "UseCommand")):
+                    await BetterARAM.command.showHelp()
+
                 onceChampSelect = False
-            await betterARAM.autoSwap.checkBench()
+
+            if (await options.getOption("CoreFeature", "UseAutoSwap")):
+                await betterARAM.autoSwap.checkBench()
             
 
         elif phase == "InProgress":
@@ -116,7 +128,8 @@ async def processMessage(connection, event):
         return
     
     if body[0] == "/":
-        await betterARAM.command.processMessage(connection, event)
+        if (await BetterARAM.options.getOption("CoreFeature", "UseCommand")):
+            await betterARAM.command.processMessage(connection, event)
 
 @BetterARAM.connector.close
 async def disconnect(connection):

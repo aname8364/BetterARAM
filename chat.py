@@ -1,8 +1,10 @@
-from logger import Logger
+from logger     import Logger
+from options    import Options
 
 class Chat:
     connection  = None
     logger      = Logger("Chat")
+    options     = Options()
 
     @classmethod
     def setConnection(cls, connection) -> None:
@@ -18,6 +20,8 @@ class Chat:
         return roomData['id']
 
     async def SendMessage(self, message: str, type: str ="chat") -> None:
+        if not (await self.options.getOption("SubFeature", "SendMessage")):
+            return
         try:
             roomID = await self.GetRoomID()
             messageDataBody = {
