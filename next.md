@@ -8,3 +8,9 @@
  - ~~champion id <-> champion name~~
  - ~~swap priority~~
 3. winning streak
+
+ to this
+ - ~~get recent match history~~
+ - ~~count streak~~
+ - ignore regame
+ - what if there is no match data?

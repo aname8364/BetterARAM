@@ -1,0 +1,13 @@
+{
+    "CoreFeature": {
+        "UseCommand": true,
+        "UseAutoSwap": true,
+        "UseStreak": true
+    },
+    "SubFeature": {
+        "SendMessage": true
+    },
+    "Other": {
+        "EnterMessage": "BetterARAM을 사용중이에요!"
+    }
+}

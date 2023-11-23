@@ -1,5 +1,5 @@
-from asyncio        import sleep
 from requests       import get
+from asyncio        import sleep
 from packaging      import version
 
 from lcu_driver     import Connector
@@ -10,9 +10,11 @@ from game           import Game
 from chat           import Chat
 from auto_swap      import AutoSwap
 from logger         import Logger
+from streak         import Streak
+from options        import Options
 
 class BetterARAM:
-    VERSION         = "0.8.1"
+    VERSION         = "0.9.0"
     connector       = Connector()
     logger          = Logger("BetterARAM")
     command         = Command()
@@ -20,6 +22,8 @@ class BetterARAM:
     api             = DataDragonAPI()
     chat            = Chat()
     autoSwap        = AutoSwap()
+    streak          = Streak()
+    options         = Options()
 
     def checkVersion(self) -> None:
         response = get("https://raw.githubusercontent.com/aname8364/BetterARAM/main/version")
@@ -40,16 +44,19 @@ class BetterARAM:
     def start(self):
         self.logger.log.info("Starting..")
         self.checkVersion()
+        self.options.loadOptions()
         self.connector.start()
 
 betterARAM  = BetterARAM()
 
 @BetterARAM.connector.ready
 async def connect(connection):
-    log = BetterARAM.logger.log
+    log     = BetterARAM.logger.log
+    options  = BetterARAM.options
     log.info("connected")
     Chat.setConnection(connection)
     AutoSwap.setConnection(connection)
+    Streak.setConnection(connection)
     await betterARAM.command.connect(connection)
     await betterARAM.api.init()
     await betterARAM.autoSwap.start()
@@ -72,14 +79,26 @@ async def connect(connection):
 
         elif phase == "ChampSelect":
             if onceChampSelect:
-                # streak here
-                await sleep(3)
-                await BetterARAM.chat.SendMessage("command: /me , /deeplol")
+                await sleep(4)
+                enterMessage = await options.getOption("Other", "EnterMessage")
+                await BetterARAM.chat.SendMessage(enterMessage)
+
+                if (await options.getOption("CoreFeature", "UseStreak")):
+                    await BetterARAM.streak.checkStreak()
+
+                if (await options.getOption("CoreFeature", "UseCommand")):
+                    await BetterARAM.command.showHelp()
+
                 onceChampSelect = False
-            await betterARAM.autoSwap.checkBench()
+
+            if (await options.getOption("CoreFeature", "UseAutoSwap")):
+                await betterARAM.autoSwap.checkBench()
             
 
         elif phase == "InProgress":
+            pass
+
+        elif phase == "Reconnect":
             pass
 
         elif phase == "WaitingForStats":
@@ -109,7 +128,8 @@ async def processMessage(connection, event):
         return
     
     if body[0] == "/":
-        await betterARAM.command.processMessage(connection, event)
+        if (await BetterARAM.options.getOption("CoreFeature", "UseCommand")):
+            await betterARAM.command.processMessage(connection, event)
 
 @BetterARAM.connector.close
 async def disconnect(connection):
