@@ -76,6 +76,8 @@ async def connect(connection):
 
         elif phase == "ReadyCheck":
             onceChampSelect = True
+            if (await options.getOption("CoreFeature", "UseAutoAccept")):
+                await connection.request("post", "/lol-matchmaking/v1/ready-check/accept")
 
         elif phase == "ChampSelect":
             if onceChampSelect:

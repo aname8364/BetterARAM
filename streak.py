@@ -54,6 +54,7 @@ class Streak:
         return win
     
     async def getStreak(self, win: bool) -> int:
+        # to do: change const and get matches in once
         streak      = 1
         beginIndex  = 1 # 'gameIndexBegin'
         endIndex    = 5 # 'gameIndexEnd'

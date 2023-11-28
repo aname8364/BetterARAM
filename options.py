@@ -16,7 +16,9 @@ class Options:
 
             "UseStreak"         : True,
             "StreakWin"         : "{streak} 연승 중!",
-            "StreakLose"        : "{streak} 연패 중.."
+            "StreakLose"        : "{streak} 연패 중..",
+
+            "UseAutoAccept"     : True
         },
         "SubFeature": {
             "SendMessage"   : True

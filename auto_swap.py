@@ -75,6 +75,7 @@ class AutoSwap:
         return curPriority
     
     async def checkBench(self) -> None:
+        # to do: sort champion by priority and swap champion[0]
         bench       = await self.getBench()
         curPriority = await self.getMyChampionPriority()
         for priority, champion in self.favChampion.items():
