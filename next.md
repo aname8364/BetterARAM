@@ -7,7 +7,7 @@
  - ~~find how pick~~
  - ~~champion id <-> champion name~~
  - ~~swap priority~~
-3. winning streak
+3. ~~winning streak~~
 
  to this
  - ~~get recent match history~~
