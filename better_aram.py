@@ -76,12 +76,15 @@ async def connect(connection):
 
         elif phase == "ReadyCheck":
             onceChampSelect = True
+            if (await options.getOption("CoreFeature", "UseAutoAccept")):
+                await connection.request("post", "/lol-matchmaking/v1/ready-check/accept")
 
         elif phase == "ChampSelect":
             if onceChampSelect:
                 await sleep(4)
-                enterMessage = await options.getOption("Other", "EnterMessage")
-                await BetterARAM.chat.SendMessage(enterMessage)
+
+                if (await options.getOption("CoreFeature", "UseEnterMessage")):
+                    await BetterARAM.chat.SendMessage((await options.getOption("CoreFeature", "EnterMessage")))
 
                 if (await options.getOption("CoreFeature", "UseStreak")):
                     await BetterARAM.streak.checkStreak()

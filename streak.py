@@ -1,10 +1,12 @@
 from typing import Optional
 from chat   import Chat
 from logger import Logger
+from options import Options
 
 class Streak:
     connection  = None
     logger      = Logger("Streak")
+    options     = Options()
 
     @classmethod
     def setConnection(cls, connection) -> None:
@@ -52,6 +54,7 @@ class Streak:
         return win
     
     async def getStreak(self, win: bool) -> int:
+        # to do: change const and get matches in once
         streak      = 1
         beginIndex  = 1 # 'gameIndexBegin'
         endIndex    = 5 # 'gameIndexEnd'
@@ -108,10 +111,11 @@ class Streak:
         if not streak:
             self.logger.log.info("Failed to count streak.")
             return
-
-        streakType = "연승 중!"
-        if isPreviousMatchWin is False:
-            streakType = "연패 중.."
         
         if streak > 1:
-            await self.chat.SendMessage(f"[Streak] {streak} {streakType}")
+            if isPreviousMatchWin is True:
+                self.logger.log.info(f"{streak} 연승 중!")
+                await self.chat.SendMessage((await self.options.getOption("CoreFeature", "StreakWin")).format(streak=streak))
+            elif isPreviousMatchWin is False:
+                self.logger.log.info(f"{streak} 연패 중..")
+                await self.chat.SendMessage((await self.options.getOption("CoreFeature", "StreakLose")).format(streak=streak))
