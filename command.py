@@ -3,16 +3,19 @@ from chat           import Chat
 from summoner       import Summoner
 from game           import Game
 from logger         import Logger
+from options        import Options
 
 class Command:
     commands    = {}
     logger      = Logger("Command")
+    options     = Options()
 
     def initCommands(self) -> None:
         self.commands = {
             "deeplol"   : self.cmdDeepLol,
             "me"        : self.cmdDeepLolSolo
         }
+        self.count = len(self.commands)
 
     def __init__(self) -> None:
         self.game        = Game()
@@ -77,9 +80,7 @@ class Command:
         await self.api.init()
 
     async def showHelp(self) -> None:
-        message = "[Command]\n"
-        message += f"\n명령어가 {len(self.commands)}개 있어요: /me 또는 /deeplol"
-        await self.chat.SendMessage(message)
+        await self.chat.SendMessage((await self.options.getOption("CoreFeature", "CommandMessage")).format(count=self.count))
 
     async def processMessage(self, connection, event) -> None:
         lastMessage = event.data
