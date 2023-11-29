@@ -14,7 +14,7 @@ from streak         import Streak
 from options        import Options
 
 class BetterARAM:
-    VERSION         = "0.9.0"
+    VERSION         = "0.10.0"
     connector       = Connector()
     logger          = Logger("BetterARAM")
     command         = Command()
