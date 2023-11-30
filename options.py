@@ -9,7 +9,7 @@ class Options:
             "EnterMessage"      : "BetterARAM을 사용중이에요!",
 
             "UseCommand"        : True,
-            "CommandMessage"    : "명령어가 {count}개 있어요: /me 또는 /deeplol",
+            "CommandMessage"    : "명령어가 {count}개 있어요: /me 또는 /team",
 
             "UseAutoSwap"       : True,
             "AutoSwapMessage"   : "{champion}를 벤치에서 가져왔어요. (우선순위: {priority})", 
