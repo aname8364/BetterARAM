@@ -16,7 +16,7 @@ class DataDragonAPI:
         if not self.isInited:
             await self.updateVersion()
             await self.updateChampionData()
-            await self.mapChampionId()
+            await self.mapChampionData()
             self.isInited = True
 
     async def getData(self, endPoint: str) -> Optional[Dict]:
@@ -37,7 +37,7 @@ class DataDragonAPI:
             self.gameVersion = version[0]
 
     async def updateChampionData(self) -> Dict:
-        champion = await self.getData(f"/cdn/{self.gameVersion}/data/en_US/champion.json")
+        champion = await self.getData(f"/cdn/{self.gameVersion}/data/ko_KR/champion.json")
         if champion:
             championData = champion.get("data", {})
             if championData:
@@ -50,10 +50,12 @@ class DataDragonAPI:
         if champion:
             return champion.get("key", -1)
             
-    async def mapChampionId(self):
-        for championName, championData in self.championData.items():
-            championId = championData.get("key", -1)
-            self.championTable[int(championId)] = championName
+    async def mapChampionData(self):
+        for championRealName, championData in self.championData.items():
+            championId   = int(championData.get("key", "-1"))
+            championName = championData.get("name", "")
+            self.championTable[championId]   = championName
+            self.championTable[championName] = championId
 
 async def test():
     api = DataDragonAPI()
@@ -69,7 +71,10 @@ async def test():
     except TypeError:
         print("Failed to retrieve data.")
 
-    twistedFate = await api.getChampionId("TwistedFate")
+    annie = await api.getChampionId("Annie")
+    print(annie)
+
+    twistedFate = api.championTable["트위스티드 페이트"]
     print(twistedFate)
 
 if __name__ == "__main__":

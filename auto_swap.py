@@ -37,7 +37,7 @@ class AutoSwap:
 
     async def loadFavoriteChampion(self) -> None:
         await self.checkFilePath()
-        async with open(self.filePath, mode="r") as file:
+        async with open(self.filePath, "r", encoding="UTF-8") as file:
             content = await file.read()
         self.favChampion = loads(content)
 
@@ -80,9 +80,9 @@ class AutoSwap:
         curPriority = await self.getMyChampionPriority()
         for priority, champion in self.favChampion.items():
             for benchChampion in bench:
-                favChampionId   = await self.api.getChampionId(champion)
+                favChampionId   = self.api.championTable.get(champion, -1)
                 benchChampionId = benchChampion.get("championId", -1)
-                if int(favChampionId) == benchChampionId:
+                if favChampionId == benchChampionId:
                     self.logger.log.info(f"found favorite champion with priority {priority} from bench")
                     if curPriority == -1 or priority < curPriority:
                         await self.connection.request("post", f"/lol-champ-select/v1/session/bench/swap/{favChampionId}")
