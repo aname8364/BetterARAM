@@ -77,7 +77,10 @@ async def connect(connection):
         elif phase == "ReadyCheck":
             onceChampSelect = True
             if (await options.getOption("CoreFeature", "UseAutoAccept")):
-                await connection.request("post", "/lol-matchmaking/v1/ready-check/accept")
+                readyCheck = await (await connection.request("get", "/lol-matchmaking/v1/ready-check")).json()
+                if readyCheck["playerResponse"] == "None":
+                    BetterARAM.logger.log.info("Matchmaking accepted.")
+                    await connection.request("post", "/lol-matchmaking/v1/ready-check/accept")
 
         elif phase == "ChampSelect":
             if onceChampSelect:
