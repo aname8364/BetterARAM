@@ -133,9 +133,8 @@ async def processMessage(connection, event):
     if type != "groupchat":
         return
     
-    if body[0] == "/":
-        if (await BetterARAM.options.getOption("CoreFeature", "UseCommand")):
-            await betterARAM.command.processMessage(connection, event)
+    if (await BetterARAM.options.getOption("CoreFeature", "UseCommand")):
+        await betterARAM.command.processMessage(connection, event)
 
 @BetterARAM.connector.close
 async def disconnect(connection):

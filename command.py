@@ -1,3 +1,5 @@
+from json           import dump, load
+
 from data_dragon    import DataDragonAPI
 from chat           import Chat
 from summoner       import Summoner
@@ -6,16 +8,28 @@ from logger         import Logger
 from options        import Options
 
 class Command:
+    runePath    = "rune.json"
+
     commands    = {}
     logger      = Logger("Command")
     options     = Options()
 
+    def getPublicCount(self) -> int:
+        count = 0
+        for _, data in self.commands.items():
+            if data["private"] is False:
+                count += 1
+        return count
+
     def initCommands(self) -> None:
         self.commands = {
-            "deeplol"   : self.cmdDeepLol,
-            "me"        : self.cmdDeepLolSolo
+            "team"      : {"private": False,    "func": self.cmdDeepLol},
+            "me"        : {"private": False,    "func": self.cmdDeepLolSolo},
+            "setrune"   : {"private": True,     "func": self.cmdSetRune},
+            "getrune"   : {"private": True,     "func": self.cmdGetRune},
+            "runes"     : {"private": True,     "func": self.cmdRunes}
         }
-        self.count = len(self.commands)
+        self.count = self.getPublicCount()
 
     def __init__(self) -> None:
         self.game        = Game()
@@ -71,13 +85,47 @@ class Command:
 
             message += f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
-        
 
+    async def cmdSetRune(self, runeName, *args) -> None:
+        rune = self.runeData.get(runeName, {})
+        if not rune:
+            self.logger.log.warning(f"No rune named {runeName} found in {self.runePath}.")
+            return
+        
+        currentPage = await (await self.connection.request("get", "/lol-perks/v1/currentpage")).json()
+        currentPageId = currentPage["id"]
+
+        await self.connection.request("put", f"/lol-perks/v1/pages/{currentPageId}", data=rune)
+        await self.connection.request("put", "/lol-perks/v1/currentpage")
+        self.logger.log.info(f"Changed rune to {runeName}!")
+
+    async def cmdGetRune(self, *args) -> None:
+        currentPage = await (await self.connection.request("get", "/lol-perks/v1/currentpage")).json()
+        self.logger.log.info(f"\"primaryStyleId\": {currentPage['primaryStyleId']}")
+        self.logger.log.info(f"\"subStyleId\": {currentPage['subStyleId']}")
+        perks = ""
+        for perk in currentPage["selectedPerkIds"]:
+            perks += str(perk) + " "
+        self.logger.log.info(perks)
+
+    async def cmdRunes(self, *args) -> None:
+        runes = ""
+        for name in self.runeData:
+            runes += name + " "
+        #await self.chat.SendMessage(runes)
+        self.logger.log.info(runes)
+
+    async def updateRuneData(self) -> None:
+        with open(self.runePath, "r", encoding="UTF-8") as file:
+            self.runeData = load(file)
+        
     async def connect(self, connection) -> None:
+        self.connection = connection
         Chat.setConnection(connection)
         Game.setConnection(connection)
         Summoner.setConnection(connection)
         await self.api.init()
+        await self.updateRuneData()
 
     async def showHelp(self) -> None:
         await self.chat.SendMessage((await self.options.getOption("CoreFeature", "CommandMessage")).format(count=self.count))
@@ -89,16 +137,23 @@ class Command:
         type    = lastMessage["type"]
         owner   = lastMessage["fromSummonerId"]
 
-        await self.setOwner(owner)
+        if body[0] == "/":
+            await self.setOwner(owner)
 
-        command, *parameters = body.split()
-        command = command[1:]
+            command, *parameters = body.split()
+            command = command[1:]
 
-        if command in self.commands:
-            try:
-                await self.commands[command](*parameters)
-            except:
-                self.logger.log.error(f"Failed to run command {command} with args {parameters}")
+            if command in self.commands:
+                try:
+                    commandData = self.commands[command]
+                    commandFunc = commandData["func"]
+                    private     = commandData["private"]
+                    mySummerId  = (await self.chat.GetMe())["summonerId"]
+                    if private and self.owner != mySummerId:
+                        return
+                    await commandFunc(*parameters)
+                except:
+                    self.logger.log.error(f"Failed to run command {command} with args {parameters}")
 
 if __name__ == "__main__":
     from lcu_driver import Connector
