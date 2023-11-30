@@ -70,12 +70,15 @@ async def connect(connection):
         log.info(f"gameflow-phase: {phase}")
         if phase == "Lobby":
             onceChampSelect = True
+            betterARAM.chat.canChat = False
         
         elif phase == "Matchmaking":
             onceChampSelect = True
+            betterARAM.chat.canChat = False
 
         elif phase == "ReadyCheck":
             onceChampSelect = True
+            betterARAM.chat.canChat = False
             if (await options.getOption("CoreFeature", "UseAutoAccept")):
                 readyCheck = await (await connection.request("get", "/lol-matchmaking/v1/ready-check")).json()
                 if readyCheck["playerResponse"] == "None":
