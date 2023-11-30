@@ -83,14 +83,14 @@ async def connect(connection):
                     await connection.request("post", "/lol-matchmaking/v1/ready-check/accept")
 
         elif phase == "ChampSelect":
-            if onceChampSelect:
-                await sleep(4)
-
+            if onceChampSelect and betterARAM.chat.canChat:
                 if (await options.getOption("CoreFeature", "UseEnterMessage")):
                     await BetterARAM.chat.SendMessage((await options.getOption("CoreFeature", "EnterMessage")))
 
                 if (await options.getOption("CoreFeature", "UseStreak")):
                     await BetterARAM.streak.checkStreak()
+
+                await sleep(1)
 
                 if (await options.getOption("CoreFeature", "UseCommand")):
                     await BetterARAM.command.showHelp()
@@ -129,6 +129,8 @@ async def processMessage(connection, event):
     body    = lastMessage["body"]
     type    = lastMessage["type"]
     owner   = lastMessage["fromSummonerId"]
+
+    await betterARAM.chat.processMessage(connection, event)
 
     if type != "groupchat":
         return
