@@ -53,13 +53,15 @@ class Command:
             if summonerId == -1 or championId == -1:
                 continue
         
-            summonerName    = await self.summoner.GetSummonerName(summonerId)
-            championName    = self.api.championTable.get(championId, "")
+            summonerName        = await self.summoner.GetSummonerName(summonerId)
+            championData        = self.api.championTable[championId]
+            championLocalName   = championData["local"]
+            championGlobalName  = championData["global"]
         
-            if summonerName == "" or not championName:
+            if summonerName == "" or not championLocalName or not championGlobalName:
                 continue
         
-            message += f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message += f"{summonerName} ({championLocalName}): https://www.deeplol.gg/champions/{championGlobalName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
 
     async def cmdDeepLolSolo(self, *args) -> None:
@@ -77,13 +79,15 @@ class Command:
             if summonerId != self.owner:
                 continue
 
-            summonerName    = await self.summoner.GetSummonerName(summonerId)
-            championName    = self.api.championTable.get(championId, "")
+            summonerName        = await self.summoner.GetSummonerName(summonerId)
+            championData        = self.api.championTable[championId]
+            championLocalName   = championData["local"]
+            championGlobalName  = championData["global"]
 
-            if summonerName == "" or not championName:
+            if summonerName == "" or not championLocalName or not championGlobalName:
                 continue
 
-            message += f"{summonerName} ({championName}): https://www.deeplol.gg/champions/{championName.lower()}/build/aram\n"
+            message += f"{summonerName} ({championLocalName}): https://www.deeplol.gg/champions/{championGlobalName.lower()}/build/aram\n"
         await self.chat.SendMessage(message)
 
     async def cmdSetRune(self, runeName, *args) -> None:

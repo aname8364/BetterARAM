@@ -65,11 +65,11 @@ class AutoSwap:
         return myChampion
 
     async def getMyChampionPriority(self) -> int:
-        myChampion      = await self.getMyChampion()
-        curChampionName = self.api.championTable.get(myChampion, "")
+        myChampion: int = await self.getMyChampion()
+        curChampionName = self.api.championTable[myChampion]
         curPriority     = -1
         for priority, champion in self.favChampion.items():
-            if champion == curChampionName:
+            if champion == curChampionName["local"]:
                 curPriority = priority
                 break
         return curPriority
@@ -77,13 +77,15 @@ class AutoSwap:
     async def checkBench(self) -> None:
         # to do: sort champion by priority and swap champion[0]
         bench       = await self.getBench()
+        if not bench:
+            return
         curPriority = await self.getMyChampionPriority()
         for priority, champion in self.favChampion.items():
             for benchChampion in bench:
                 favChampionId   = self.api.championTable.get(champion, -1)
                 benchChampionId = benchChampion.get("championId", -1)
                 if favChampionId == benchChampionId:
-                    self.logger.log.info(f"found favorite champion with priority {priority} from bench")
+                    self.logger.log.info(f"Found favorite champion with priority {priority} from bench")
                     if curPriority == -1 or priority < curPriority:
                         await self.connection.request("post", f"/lol-champ-select/v1/session/bench/swap/{favChampionId}")
                         self.logger.log.info(f"swap to {champion} (priority: {priority})")

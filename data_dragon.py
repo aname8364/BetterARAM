@@ -57,7 +57,10 @@ class DataDragonAPI:
         for championRealName, championData in self.championData.items():
             championId   = int(championData.get("key", "-1"))
             championName = championData.get("name", "")
-            self.championTable[championId]   = championName
+            self.championTable[championId]   = {
+                "global": championRealName,
+                "local" : championName
+                }
             self.championTable[championName] = championId
 
 async def test():
