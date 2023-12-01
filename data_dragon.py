@@ -3,6 +3,7 @@ import asyncio
 from typing import Optional, Dict
 
 from logger import Logger
+from options import Options
 
 class DataDragonAPI:
     BASE_URL        = "https://ddragon.leagueoflegends.com"
@@ -11,9 +12,11 @@ class DataDragonAPI:
     championTable   = {}
     isInited        = False
     logger          = Logger("DataDragonAPI")
+    options         = Options()
 
     async def init(self) -> None:
         if not self.isInited:
+            self.language = await self.options.getOption("DataDragonAPI", "Language", "en_US")
             await self.updateVersion()
             await self.updateChampionData()
             await self.mapChampionData()
@@ -37,7 +40,7 @@ class DataDragonAPI:
             self.gameVersion = version[0]
 
     async def updateChampionData(self) -> Dict:
-        champion = await self.getData(f"/cdn/{self.gameVersion}/data/ko_KR/champion.json")
+        champion = await self.getData(f"/cdn/{self.gameVersion}/data/{self.language}/champion.json")
         if champion:
             championData = champion.get("data", {})
             if championData:

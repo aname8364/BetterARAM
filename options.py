@@ -22,6 +22,9 @@ class Options:
         },
         "SubFeature": {
             "SendMessage"   : True
+        },
+        "DataDragonAPI": {
+            "Language"      : "ko_KR"
         }
     }
 
@@ -37,12 +40,12 @@ class Options:
         with open(cls.optionPath, "r", encoding="UTF-8") as file:
             cls.optionData = load(file)
     
-    async def getOption(self, optionGroup: str, optionName: str):
+    async def getOption(self, optionGroup: str, optionName: str, defaultValue = None):
         if not (group := self.optionData.get(optionGroup)):
-            return
+            return defaultValue
         
         if not (option := group.get(optionName)):
-            return
+            return defaultValue
         
         return option
         
