@@ -88,4 +88,5 @@ class AutoSwap:
                     if curPriority == -1 or priority < curPriority:
                         await self.connection.request("post", f"/lol-champ-select/v1/session/bench/swap/{favChampionId}")
                         self.logger.log.info(f"Swap to {champion} (priority: {priority})")
-                        await self.chat.SendMessage((await self.options.getOption("CoreFeature", "AutoSwapMessage")).format(champion=champion, priority=priority))
+                        if self.chat.canChat:
+                            await self.chat.SendMessage((await self.options.getOption("CoreFeature", "AutoSwapMessage")).format(champion=champion, priority=priority))

@@ -1,5 +1,8 @@
 from os.path    import isfile
 from json       import dump, load
+from typing     import TypeVar
+
+T = TypeVar("T")
 
 class Options:
     optionPath = "options.json"
@@ -28,19 +31,20 @@ class Options:
         }
     }
 
-    @classmethod
-    def checkOptionsPath(cls):
-        if not isfile(cls.optionPath):
-            with open(cls.optionPath, "w", encoding="UTF-8") as file:
-                dump(cls.optionData, file, ensure_ascii=False, indent=4)
+    def dump(self) -> None:
+        with open(self.optionPath, "w", encoding="UTF-8") as file:
+            dump(self.optionData, file, ensure_ascii=False, indent=4)
 
-    @classmethod
-    def loadOptions(cls):
-        cls.checkOptionsPath()
-        with open(cls.optionPath, "r", encoding="UTF-8") as file:
-            cls.optionData = load(file)
+    def load(self) -> None:
+        with open(self.optionPath, "r", encoding="UTF-8") as file:
+            self.optionData = load(file)
+
+    def start(self) -> None:
+        if not isfile(self.optionPath):
+            self.dump()
+        self.load()
     
-    async def getOption(self, optionGroup: str, optionName: str, defaultValue = None):
+    async def getOption(self, optionGroup: str, optionName: str, defaultValue: T = None) -> T:
         if not (group := self.optionData.get(optionGroup)):
             return defaultValue
         
@@ -49,3 +53,14 @@ class Options:
         
         return option
         
+async def main() -> None:
+    options = Options()
+    options.start()
+
+    lang = await options.getOption("DataDragonAPI", "Language")
+    print(lang)
+    
+if __name__ == "__main__":
+        import asyncio
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        asyncio.run(main())
