@@ -53,8 +53,6 @@ class BetterARAM:
         await self.command.connect(connection)
         await self.api.init()
         await self.autoSwap.start()
-    
-        onceChampSelect: bool = True
 
         log.info("Started")
         while True:
@@ -114,7 +112,7 @@ class BetterARAM:
         phase = event.data
 
         if phase == "Matchmaking":
-            self.chat.canChat = False
+            await self.chat.set_canChat(False)
 
         elif phase == "ReadyCheck":
             if (await self.options.getOption("CoreFeature", "UseAutoAccept")):
@@ -124,7 +122,7 @@ class BetterARAM:
                     await connection.request("post", "/lol-matchmaking/v1/ready-check/accept")
         
         elif phase == "ChampSelect":
-            while not self.chat.canChat:
+            while not (await (self.chat.get_canChat())):
                 await sleep(0.5)
             if (await self.options.getOption("CoreFeature", "UseEnterMessage")):
                 await self.chat.SendMessage((await self.options.getOption("CoreFeature", "EnterMessage")))

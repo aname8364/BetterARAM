@@ -5,13 +5,19 @@ class Chat:
     connection  = None
     logger      = Logger("Chat")
     options     = Options()
+    canChat: bool = False
 
     @classmethod
     def setConnection(cls, connection) -> None:
         cls.connection = connection
 
-    def __init__(self):
-        self.canChat = False
+    @classmethod
+    async def get_canChat(cls) -> bool:
+        return cls.canChat
+
+    @classmethod
+    async def set_canChat(cls, new_value: bool) -> None:
+        cls.canChat = new_value
     
     async def GetRoomID(self) -> str:
         data = await (await self.connection.request('get', '/lol-chat/v1/conversations')).json()
@@ -50,4 +56,4 @@ class Chat:
         owner   = lastMessage["fromSummonerId"]
 
         if type == "system" and body == "joined_room":
-            self.canChat = True
+            await self.set_canChat(True)
