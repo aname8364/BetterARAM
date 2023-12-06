@@ -1,2 +1,2 @@
 # BetterARAM
- aram stuff
+ league of legends, aram stuff
