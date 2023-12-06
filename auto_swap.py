@@ -37,7 +37,7 @@ class AutoSwap:
 
     async def loadFavoriteChampion(self) -> None:
         await self.checkFilePath()
-        async with open(self.filePath, mode="r") as file:
+        async with open(self.filePath, "r", encoding="UTF-8") as file:
             content = await file.read()
         self.favChampion = loads(content)
 
@@ -65,11 +65,11 @@ class AutoSwap:
         return myChampion
 
     async def getMyChampionPriority(self) -> int:
-        myChampion      = await self.getMyChampion()
-        curChampionName = self.api.championTable.get(myChampion, "")
+        myChampion: int = await self.getMyChampion()
+        curChampionName = self.api.championTable[myChampion]
         curPriority     = -1
         for priority, champion in self.favChampion.items():
-            if champion == curChampionName:
+            if champion == curChampionName["local"]:
                 curPriority = priority
                 break
         return curPriority
@@ -77,14 +77,16 @@ class AutoSwap:
     async def checkBench(self) -> None:
         # to do: sort champion by priority and swap champion[0]
         bench       = await self.getBench()
+        if not bench:
+            return
         curPriority = await self.getMyChampionPriority()
         for priority, champion in self.favChampion.items():
             for benchChampion in bench:
-                favChampionId   = await self.api.getChampionId(champion)
+                favChampionId   = self.api.championTable.get(champion, -1)
                 benchChampionId = benchChampion.get("championId", -1)
-                if int(favChampionId) == benchChampionId:
-                    self.logger.log.info(f"found favorite champion with priority {priority} from bench")
+                if favChampionId == benchChampionId:
                     if curPriority == -1 or priority < curPriority:
                         await self.connection.request("post", f"/lol-champ-select/v1/session/bench/swap/{favChampionId}")
-                        self.logger.log.info(f"swap to {champion} (priority: {priority})")
-                        await self.chat.SendMessage((await self.options.getOption("CoreFeature", "AutoSwapMessage")).format(champion=champion, priority=priority))
+                        self.logger.log.info(f"Swap to {champion} (priority: {priority})")
+                        if await self.chat.get_canChat():
+                            await self.chat.SendMessage((await self.options.getOption("CoreFeature", "AutoSwapMessage")).format(champion=champion, priority=priority))

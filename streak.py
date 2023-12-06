@@ -57,8 +57,8 @@ class Streak:
         # to do: change const and get matches in once
         streak      = 1
         beginIndex  = 1 # 'gameIndexBegin'
-        endIndex    = 5 # 'gameIndexEnd'
-        indexCount  = 5 # 'gameCount'
+        endIndex    = 20 # 'gameIndexEnd'
+        indexCount  = 20 # 'gameCount'
         streakEnd   = False
 
         while True:
@@ -109,7 +109,7 @@ class Streak:
         streak = await self.getStreak(isPreviousMatchWin)
 
         if not streak:
-            self.logger.log.info("Failed to count streak.")
+            self.logger.log.warning("Failed to count streak.")
             return
         
         if streak > 1:

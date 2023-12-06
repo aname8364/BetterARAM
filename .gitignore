@@ -1,9 +1,11 @@
 # idea
 next.md
+re/
 
 # json
-favorite_champion.json
-options.json
+/favorite_champion.json
+/options.json
+/rune.json
 
 # compiled
 **/__pycache__/
