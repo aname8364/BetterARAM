@@ -1,5 +1,5 @@
 # BetterARAM
- ** League of Legends ARAM Enhancement Tool **
+ **League of Legends ARAM Enhancement Tool**
 
  ## features
   - gamechat commands
