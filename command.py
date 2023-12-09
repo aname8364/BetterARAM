@@ -1,4 +1,5 @@
-from json           import dump, load
+from json           import dumps, loads
+from aiofiles       import open, ospath
 
 from data_dragon    import DataDragonAPI
 from chat           import Chat
@@ -119,9 +120,16 @@ class Command:
         #await self.chat.SendMessage(runes)
         self.logger.log.info(runes)
 
+    async def checkRunePath(self) -> None:
+        if not (await ospath.isfile(self.runePath)):
+            self.logger.log.debug(f"Creating {self.runePath}")
+            async with open(self.runePath, mode="w") as file:
+                await file.write(dumps({}))
+
     async def updateRuneData(self) -> None:
-        with open(self.runePath, "r", encoding="UTF-8") as file:
-            self.runeData = load(file)
+        await self.checkRunePath()
+        async with open(self.runePath, "r", encoding="UTF-8") as file:
+            self.runeData = loads(await file.read())
         
     async def connect(self, connection) -> None:
         self.connection = connection
