@@ -31,24 +31,27 @@ class Options:
         }
     }
 
-    def dump(self) -> None:
-        with open(self.optionPath, "w", encoding="UTF-8") as file:
-            dump(self.optionData, file, ensure_ascii=False, indent=4)
+    @classmethod
+    def dump(cls) -> None:
+        with open(cls.optionPath, "w", encoding="UTF-8") as file:
+            dump(cls.optionData, file, ensure_ascii=False, indent=4)
 
-    def load(self) -> None:
-        with open(self.optionPath, "r", encoding="UTF-8") as file:
-            self.optionData = load(file)
+    @classmethod
+    def load(cls) -> None:
+        with open(cls.optionPath, "r", encoding="UTF-8") as file:
+            cls.optionData = load(file)
 
-    def start(self) -> None:
-        if not isfile(self.optionPath):
-            self.dump()
-        self.load()
+    @classmethod
+    def start(cls) -> None:
+        if not isfile(cls.optionPath):
+            cls.dump()
+        cls.load()
     
     async def getOption(self, optionGroup: str, optionName: str, defaultValue: T = None) -> T:
-        if not (group := self.optionData.get(optionGroup)):
+        if (group := self.optionData.get(optionGroup)) is None:
             return defaultValue
-        
-        if not (option := group.get(optionName)):
+    
+        if (option := group.get(optionName)) is None:
             return defaultValue
         
         return option
