@@ -36,3 +36,4 @@ MANIFEST
 # pyinstaller
 *.manifest
 *.spec
+api.py
